@@ -1,56 +1,46 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState } from "react";
 import FormInput from "../components/layouts/app/FormInput";
 import Letter from "../components/layouts/app/Letter";
 import { Monograma } from "../types";
-
+import { motion } from 'framer-motion';
+import { stagger, fadeInUp, routeAnimation } from '../animations';
 const About = () => {
 
   const [render, setRender] = useState(false)
 
-  const [resultMono, setResultMono] = useState<Monograma[]>([])
-  const [topMono, setTopMono] = useState<Monograma[]>([])
-  let [totalMono, setTotalMono] = useState(0)
-
-
-  const [resultBi, setResultBi] = useState<Monograma[]>([])
-  const [topBi, setTopBi] = useState<Monograma[]>([])
-  let [totalBi, setTotalBi] = useState(0)
-
-
+  const [result, setResult] = useState<Monograma[]>([])
+  const [top, setTop] = useState<Monograma[]>([])
+  let [total, setTotal] = useState(0)
+  let [totalTop, setTotalTop] = useState(0)
 
   const [formData, setFormData] = useState({
     text: '',
+    type: 1,
   });
   const {
     text,
+    type,
   } = formData;
-  const onChange = (e: React.FormEvent<HTMLTextAreaElement>): void => setFormData({ ...formData, [e.currentTarget.name]: e.currentTarget.value });
+  const onChange = (e: (React.FormEvent<HTMLTextAreaElement> | React.FormEvent<HTMLInputElement>)): void => setFormData({ ...formData, [e.currentTarget.name]: e.currentTarget.value });
 
 
   const createObjects = (
-    dic: Monograma[],
     item: string,
     cant: number,
-    setTotal: (value: number) => void,
-    setResult: (value: Monograma[]) => void,
-    setTop: (value: Monograma[]) => void,
   ) => {
-    console.log("gege");
 
-    let total = 0
     let search
-    let newLetter: string = ""
+    let newLetter: string = ''
     for (var i = 0; i < item.length; i += cant) {
 
-      cant !== 1 ? newLetter = item.charAt(i) + item.charAt(i + 1) : newLetter = item.charAt(i)
-      if (newLetter.length < cant) {
-        continue
-      }
+      cant !== 1 ? newLetter = item.charAt(i) + item.charAt(i + 1) : newLetter = item.charAt(i) // letra: monograma | bigrama
 
-      search = dic.find(element => element.letter === newLetter);
+      if (newLetter.length < cant)
+        continue
+
+      search = result.find(element => element.letter === newLetter); //buscar letra en el array
       if (search) {
-        dic.map(element => {
+        result.map(element => {
           if (element.letter === newLetter) {
             element.count += 1
           }
@@ -61,151 +51,140 @@ const About = () => {
           count: 1,
           frequency: 0
         }
-        dic.push(add)
+        result.push(add)
       }
     }
-    dic.map(element => {
-      total += element.count
-    })
+    setResult(result) //asignamos la data al array
+
+    result.map(element => { total += element.count }) //cantidad total 
     setTotal(total)
 
-    dic.map(element => {
-      element.frequency = element.count / total
-    })
-    setResult(dic)
+    result.map(element => { element.frequency = element.count / total })  //calcular frecuencia
+    // setResult(result)
 
-    dic.sort((a, b) => {
-      return a.count - b.count
-    })
-    let newTop = dic.slice(dic.length - 9)
+    result.sort((a, b) => { return a.count - b.count }) //ordenar de menor a mayor
+    let newTop = result.slice(result.length - 9) //extrar el top
     setTop(newTop.reverse())
+    let to=0
+    newTop.map(element => { to += element.count })//cantidad total del top
+    setTotalTop(to)
+    
+  }
+  const clearForm = () => {
+    setRender(false)
+    setFormData({ text: '', type: 1 })
+    setResult([])
+    setTop([])
+    setTotal(0)
+    setTotalTop(0)
   }
 
   const onSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
+    setRender(false)
+
+    //Limpiar
+    result.length = 0
+    top.length = 0
+    total = 0
+    totalTop = 0
+
     let resu = text.toLowerCase()
-    resu = resu.replace(/\s+/g, '')
-    resu = resu.replace(/[^\w\s]/gi, '')
-    console.log("gege");
+    resu = resu.replace(/\s+/g, '') //Quitar espacios en blanco
+    resu = resu.replace(/[^\w\s]/gi, '') //Quitar simbolos
+    resu = resu.replace(/_/g, ''); //Quitar guion
+    resu = resu.replace(/\d+/g, ''); //Quitar numeros
 
-    createObjects(resultMono, resu, 1, setTotalMono, setResultMono, setTopMono)
-    createObjects(resultBi, resu, 2, setTotalBi, setResultBi, setTopBi)
-
+    type == 1 ? createObjects(resu, 1,) : createObjects(resu, 2,)
     setRender(true)
 
   };
 
   return (
-    <div className="bg-skin-fill">
-      <div className="bg-gray-50 dark:bg-gray-900 h-screen ">
+    <motion.div variants={routeAnimation} initial="initial" animate="animate" exit="exit" className="bg-skin-fill">
+      <div className="bg-gray-50 dark:bg-gray-900  ">
         <div className="max-w-7xl flex-col mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex  lg:justify-between">
           <FormInput
             text={text}
             onChange={onChange}
             onSubmit={onSubmit}
+            type={type}
+            clearForm={clearForm}
+            render={render}
           />
           <div className={`my-5 ${render ? 'block' : 'hidden'}`}>
             <div className="px-4 py-5 sm:px-6 w-full dark:border-gray-700 border dark:bg-gray-800 bg-white shadow mb-2 rounded-md">
               <div className="flex  " >
                 <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white w-full uppercase">
-                  Las frecuencias relativas del monograma
+                  Frecuencias relativas
                 </h3>
 
                 <div className="w-full flex justify-end items-center">
                   <h2 className="text-xl" >Cantidad: </h2>
-                  <h2 className="font-semibold text-xl mx-3 text-skin-base" > {totalMono}</h2>
+                  <h2 className="font-semibold text-xl mx-3 text-skin-base" > {total}</h2>
                 </div>
 
               </div>
             </div>
-            <ul className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-3`}>
-              {
-                resultMono.map(element => (
-                  <li className="border-gray-400 flex flex-row mb-2" key={element.letter}>
-                    <Letter item={element} />
-                  </li>
-                ))
-              }
-            </ul>
+            {
+              result !== []  && render&&
+              <motion.ul className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-3`} variants={stagger} initial="initial" animate="animate" >
+                {
+                  result.map(element => (
+                    <motion.li variants={fadeInUp} className="border-gray-400 flex flex-row mb-2" key={element.letter}>
+                      <Letter item={element} />
+                    </motion.li>
+                  ))
+                }
+              </motion.ul>
+            }
+
           </div>
           <div className={`my-5 ${render ? 'block' : 'hidden'}`}>
             <div className="px-4 py-5 sm:px-6 w-full dark:border-gray-700 border dark:bg-gray-800 bg-white shadow mb-2 rounded-md">
               <div className="flex  " >
                 <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white w-full uppercase">
-                  Top frecuencias relativas del monograma
+                  Top frecuencias
                 </h3>
 
                 <div className="w-full flex justify-end items-center">
                   <h2 className="text-xl" >Cantidad: </h2>
-                  <h2 className="font-semibold text-xl mx-3 text-skin-base" > {totalMono}</h2>
+                  <h2 className="font-semibold text-xl mx-3 text-skin-base"> {totalTop}</h2>
                 </div>
 
               </div>
             </div>
-            <ul className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-3`}>
+            {
+              render && (
+                <motion.ul className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-3`} variants={stagger} initial="initial" animate="animate" >
+                  {
+                    top.map(element => (
+                      <motion.li variants={fadeInUp} className="border-gray-400 flex flex-row mb-2" key={element.letter}>
+                        <Letter item={element} />
+                      </motion.li>
+                    ))
+                  }
+                </motion.ul>
+              )
+            }
+
+            {/* <ul className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-3`}  >
               {
-                topMono.map(element => (
+                top.map(element => (
                   <li className="border-gray-400 flex flex-row mb-2" key={element.letter}>
                     <Letter item={element} />
                   </li>
                 ))
               }
-            </ul>
+            </ul> */}
           </div>
-          <div className={`my-5 ${render ? 'block' : 'hidden'}`}>
-            <div className="px-4 py-5 sm:px-6 w-full dark:border-gray-700 border dark:bg-gray-800 bg-white shadow mb-2 rounded-md">
-              <div className="flex  " >
-                <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white w-full uppercase">
-                  Las frecuencias relativas del monograma
-                </h3>
 
-                <div className="w-full flex justify-end items-center">
-                  <h2 className="text-xl" >Cantidad: </h2>
-                  <h2 className="font-semibold text-xl mx-3 text-skin-base" > {totalBi}</h2>
-                </div>
-
-              </div>
-            </div>
-            <ul className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-3`}>
-              {
-                resultBi.map(element => (
-                  <li className="border-gray-400 flex flex-row mb-2" key={element.letter}>
-                    <Letter item={element} />
-                  </li>
-                ))
-              }
-            </ul>
-          </div>
-          <div className={`my-5 ${render ? 'block' : 'hidden'}`}>
-            <div className="px-4 py-5 sm:px-6 w-full dark:border-gray-700 border dark:bg-gray-800 bg-white shadow mb-2 rounded-md">
-              <div className="flex  " >
-                <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white w-full uppercase">
-                  Top frecuencias relativas del monograma
-                </h3>
-
-                <div className="w-full flex justify-end items-center">
-                  <h2 className="text-xl" >Cantidad: </h2>
-                  <h2 className="font-semibold text-xl mx-3 text-skin-base" > {totalBi}</h2>
-                </div>
-
-              </div>
-            </div>
-            <ul className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-3`}>
-              {
-                topBi.map(element => (
-                  <li className="border-gray-400 flex flex-row mb-2" key={element.letter}>
-                    <Letter item={element} />
-                  </li>
-                ))
-              }
-            </ul>
-          </div>
 
         </div>
       </div>
 
 
-    </div>
+    </motion.div>
   );
 };
 

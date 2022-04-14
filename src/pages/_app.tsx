@@ -3,10 +3,11 @@ import "../../styles/globals.css";
 import type { AppProps } from "next/app";
 import Header from "../components/layouts/header/header";
 import Footer from "../components/layouts/Footer/footer";
-import {store} from '../components/redux/store';
+import { store } from '../components/redux/store';
 import { Provider } from 'react-redux';
+import { AnimatePresence } from 'framer-motion'
 
-function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({ Component, pageProps, router }: AppProps) {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -21,16 +22,18 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <>
-    <Provider store={store}>
-      <Header />
+      <Provider store={store}>
+        <Header />
 
-      <section
-        className={loading === true ? "dark:animate-none animate-Loading " : ""}
-      >
-        <Component {...pageProps} />
-      </section>
+        <section
+          className={loading === true ? "dark:animate-none animate-Loading " : ""}
+        >
+          <AnimatePresence exitBeforeEnter>
+            <Component {...pageProps} key={router.route} />
+          </AnimatePresence>
+        </section>
 
-      <Footer />
+        <Footer />
       </Provider>
     </>
   );
