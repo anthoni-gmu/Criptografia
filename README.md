@@ -1,21 +1,29 @@
+# Criptografía
+_Problemas de algoritmos de criptografía clásica desarrollado en Next js con typescript y tailwind_
 
-# Starter Template for Nextjs, TailwindCSS & TypeScript ( with Redux )
-Looking for a Starter Template for Nextjs, TailwindCSS & TypeScript? Then, this might be the kickstarter for you.
+## Instalación 🔧
 
+_Para la instalación de la aplicación es necesario tener node js instalado_
 
-## Demo
+_Clonamos el repositorio_
 
-https://nextjs-typescript-tailwindcss-starter.vercel.app/
+```
+git clone https://github.com/anthoni-gmu/Criptografia.git
+```
 
-  
-## Features
+_Entramos a la carpeta_
 
-- Light/dark mode toggle. The dark mode state is globally saved in redux store and also saved in localstorage as well.
-- Page transition loader
-- TailwindCSS theming
-- Typescript & Redux Implementation
+```
+cd Criptografia
+```
+_Instalamos las dependencias_
 
-  
-## Found a issue?
+```
+npm i
+```
+_Corremos el servidor_
 
-If you found an bug or need support, please create the issue(ticket) on this repo.
+```
+npm run dev
+```
+
