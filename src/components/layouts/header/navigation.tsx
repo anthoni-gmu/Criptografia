@@ -16,7 +16,7 @@ const Navigation = () => {
         </div>
 
         <div className="py-2 border-b-2 border-opacity-10 border-gray-100	lg:border-0">
-          <Link href="/about">
+          <Link href="/frequency">
             <a className="dark:text-skin-white">Frecuencia</a>
           </Link>
         </div>

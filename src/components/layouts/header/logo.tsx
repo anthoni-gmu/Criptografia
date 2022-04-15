@@ -10,7 +10,7 @@ const Logo = () => {
                     <Image
                       className="h-8 w-auto sm:h-10"
                       src={"/assets/logo_utp.png"}
-                      height="45px"
+                      height="55px"
                       width="250px"
                       layout="intrinsic"
                       alt='logo aton'
